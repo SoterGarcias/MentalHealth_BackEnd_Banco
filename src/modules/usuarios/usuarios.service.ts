@@ -4,31 +4,31 @@ import { UsuariosDTO } from './usuarios.dto';
 
 @Injectable()
 export class UsuariosService {
+  constructor(private prisma: PrismaService) {}
 
-    constructor(private prisma: PrismaService) { }
+  async create(data: UsuariosDTO) {
+    const usuariosExists = await this.prisma.usuarios.findUnique({
+      where: {
+        id: data.id,
+      },
+    });
 
-    async create(data: UsuariosDTO) {
-        const usuariosExists = await this.prisma.usuarios.findFirst({
-            where: {
-                email: data.email
-            }
-        })
-        if (usuariosExists) {
-            throw new Error("Email ja cadastrado!")
-        }
-
-        const usuarios = await this.prisma.usuarios.create({
-            data,
-        });
-
-        return usuarios;
+    if (usuariosExists) {
+      throw new Error('Email já cadastrado!');
     }
-    findAll() {
-        return this.prisma.usuarios.findMany({
-            orderBy: [{
-                name: 'asc',
-            }]
 
-        })
-    }
+    const usuarios = await this.prisma.usuarios.create({
+      data,
+    });
+
+    return usuarios;
+  }
+
+  async findAll() {
+    return this.prisma.usuarios.findMany({
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
 }
